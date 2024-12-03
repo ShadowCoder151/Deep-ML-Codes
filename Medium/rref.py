@@ -1,36 +1,22 @@
 import numpy as np
 
 def rref(matrix):
-	matrix = matrix.astype(float)
+	matrix = matrix.astype(np.float32)
 	m, n = matrix.shape
-	row, col = 0, 0
-	ans = []
 
-	while row < m and col < n:
-		# if A[row][col] == 0:
-		index = np.argmax(np.abs(matrix[row:, col])) + row
-		if matrix[index, col] == 0:
-			col += 1
-			continue
+	for row in range(m):
+		if matrix[row, row] == 0:
+			nonzero_rel_id = np.nonzero(matrix[row:, row])[0]
+			if len(nonzero_rel_id) == 0:
+				continue
 
-		matrix[[index, row]] = matrix[[row, index]]
-		# 	print(f'Highest absolute value at {index}')
-		# print(f'At row {row}')
-		# print(A)
-		
-		pivot = matrix[row][col]
-		matrix[row] = matrix[row] / pivot
+			matrix[row] += matrix[nonzero_rel_id[0] + row]
 
+		matrix[row] /= matrix[row, row]
 		for k in range(m):
-			if k != row:
-				matrix[k] = matrix[k] -  matrix[k, col] * matrix[row]
-		
-		row += 1
-		col += 1
-		
-	'''non_zero = matrix[np.any(matrix != 0, axis=1)]
-	zero = matrix[~np.any(matrix != 0, axis=1)]
-	return np.vstack((non_zero, zero))'''
+			if row != k:
+				matrix[k] -= matrix[k, row] * matrix[row]
+
 	return matrix
 
 matrix = np.array([
